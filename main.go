@@ -56,6 +56,7 @@ func main() {
 	http.HandleFunc("/api/task", Check)
 	http.HandleFunc("/api/tasks", GetTasks)
 	http.HandleFunc("/api/task/done", DoneTask)
+	log.Printf("Server is running on port: %v\n", port)
 
 	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {

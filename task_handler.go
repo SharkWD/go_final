@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -105,7 +106,7 @@ func AddTask(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"id":"%d"}`, id)
+	log.Printf(`{"id":"%d"}`, id)
 
 }
 
@@ -123,7 +124,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := DB.QueryRow("SELECT id, date, title, comment, repeat FROM scheduler WHERE id=?", id).Scan(&task.ID, &task.Date, &task.Title, &task.Comment, &task.Repeat)
-	if err == sql.ErrNoRows {
+	if err != nil {
 		http.Error(w, `{"error":"Task is missing"}`, http.StatusNotFound)
 		return
 	} else if err != nil {
@@ -242,6 +243,8 @@ func EditTask(w http.ResponseWriter, r *http.Request) {
 
 	if task.Date == "" {
 		task.Date = trueTask.Date
+		http.Error(w, `{"error":"Task date is required"}`, http.StatusBadRequest)
+		return
 	} else {
 		_, err := time.Parse(formatDate, task.Date)
 		if err != nil {
